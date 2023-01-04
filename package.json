@@ -1,0 +1,25 @@
+{
+  "name": "js-api-scrape",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bocianowski1/js-api-scrape.git"
+  },
+  "author": "Torger Bocianowski",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bocianowski1/js-api-scrape/issues"
+  },
+  "homepage": "https://github.com/bocianowski1/js-api-scrape#readme",
+  "dependencies": {
+    "axios": "^1.2.2",
+    "cheerio": "^1.0.0-rc.12",
+    "express": "^4.18.2",
+    "nodemon": "^2.0.20"
+  }
+}
