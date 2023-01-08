@@ -1,23 +1,37 @@
-const PORT = 8000;
+const PORT = process.env.PORT || 8000;
 const express = require("express");
 const axios = require("axios");
 const cheerio = require("cheerio");
+// const path = require("path"); // Serve static files from the React frontend app
 
 const app = express();
+// app.use(express.static(path.join(__dirname, "frontend/"))); // Anything that doesn't match the above, send back index.html
+// app.get("*", (req, res) => {
+//   res.sendFile(path.join(__dirname + "./../frontend/pages/_app.tsx"));
+// });
+
+// CORS STUFF
+// app.use(function (req, res, next) {
+//   res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // update to match the domain you will make the request from
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   next();
+// });
 
 const getAttributes = (string) => {
   const space = /&nbsp;/g;
   string = string.replace(space, "");
   let numbers = string.match(/\d+/g);
 
-  if (numbers.length > 2) {
-    console.log(numbers);
+  try {
+    const squareMeters = parseInt(numbers[0]);
+    const monthlyRent = parseInt(numbers[1]);
+    return { squareMeters, monthlyRent };
+  } catch {
+    (err) => console.log(err);
   }
-
-  const squareMeters = parseInt(numbers[0]);
-  const monthlyRent = parseInt(numbers[1]);
-
-  return { squareMeters, monthlyRent };
 };
 
 const splitInfo = (string) => {
@@ -35,6 +49,7 @@ const areas = {
   trondheim: "1.20016.20318",
 };
 
+// number of pages to scrape
 const N = 3;
 
 // SCRAPING
@@ -61,6 +76,7 @@ const getRealEstate = (n, location) => {
         const atag = $(this).find(
           'a[class="link link--dark sf-ad-link sf-realestate-heading"]'
         );
+        const id = parseInt(atag.attr("id"));
         const title = atag.text();
         let features = $(this)
           .find(
@@ -105,6 +121,7 @@ const getRealEstate = (n, location) => {
           });
 
         ads.push({
+          id,
           title,
           features,
           link,
@@ -117,24 +134,46 @@ const getRealEstate = (n, location) => {
       });
     });
 
-    pages.push(ads);
+    pages.push({ ads });
   }
   return pages;
 };
 
-// MAJOR CITIES / AREAS
+const flattenResult = (list) => {
+  const res = [];
+  for (let i = 0; i < list.length; i++) {
+    const curr = list[i].ads;
+    for (let j = 0; j < curr.length; j++) {
+      res.push(curr[j]);
+    }
+  }
+  return res;
+};
+
+// // MAJOR CITIES / AREAS
 for (const area in areas) {
-  const pages = getRealEstate(N, areas[area]);
+  const temp = getRealEstate(N, areas[area]);
   app.get(`/${area}`, (req, res) => {
-    res.json(pages);
+    const result = flattenResult(temp).slice(1);
+    res.json({ len: result.length, area, result });
   });
 }
 
 // INDEX
 const pages = getRealEstate(N);
-
 app.get("/", (req, res) => {
-  res.json(pages);
+  const result = flattenResult(pages);
+  res.json({ len: result.length, result });
 });
 
-app.listen(PORT, () => console.log(`Running on port ${PORT}`));
+app.get("/:id", async (req, res) => {
+  const result = flattenResult(pages);
+  const id = req.params.id;
+
+  const correctAd = result.filter((ad) => ad.id == id);
+
+  res.json({ ad: correctAd });
+});
+
+// console.log("Number of Pages: ", pages.length);
+app.listen(PORT, () => console.log(`Running on PORT ${PORT}`));
