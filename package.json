@@ -12,10 +12,6 @@
   },
   "author": "Torger Bocianowski",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/bocianowski1/js-api-scrape/issues"
-  },
-  "homepage": "https://github.com/bocianowski1/js-api-scrape#readme",
   "dependencies": {
     "axios": "^1.2.2",
     "cheerio": "^1.0.0-rc.12",
