@@ -4,7 +4,7 @@
   "description": "express backend",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "npm install && nodemon index.js"
   },
   "repository": {
     "type": "git",
