@@ -1,7 +1,7 @@
 {
   "name": "js-api-scrape",
   "version": "1.0.0",
-  "description": "",
+  "description": "express backend",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js"
